@@ -37,18 +37,32 @@ public class RestClient : MonoBehaviour {
 
 	
 	// Update is called once per frame
+	int _frame = 0;
 	void Update () {
 //		return;
 
-		// Get example
-		var URL = BuildUrl ("posts/1");		// requesting post with id 1
-		var message = Get<Message>(URL);
-		if (message != null)
-			print (message.title + ": " + message.body);
+		var idx = UnityEngine.Random.Range(0,99);
+		var URL = BuildUrl ("posts/" + idx);		// requesting post with id 1
 
-		// TODO post example
-//		var json = JsonConvert.SerializeObject(objectToPost, _jsonSettings);
-
+		if (UnityEngine.Random.Range(1,5) == 1) {
+			// Post example
+			var message = new Message {
+				title = "title " + idx, 
+				id = idx, 
+				userId = idx, 
+				body = "post " + idx + ". created on frame: " + _frame
+			};
+			message = Post<Message>(URL, message);
+			if (message != null)
+				print (message.title + ": " + message.body);
+		}
+		else {
+			// Get example
+			var message = Get<Message>(URL);
+			if (message != null)
+				print (message.title + ": " + message.body);
+		}
+		_frame++;
 	}
 
 	//		const float kTimeOut = 30f;
@@ -65,6 +79,12 @@ public class RestClient : MonoBehaviour {
 		return res;
 	}
 
+
+	private T Post<T>(string url, T objectToPost) where T: class
+	{
+		var json = JsonConvert.SerializeObject(objectToPost, _jsonSettings);
+		return Post<T>(url, json);
+	}
 
 	private T Post<T>(string url, string json) where T: class
 	{
